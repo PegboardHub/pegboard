@@ -10,8 +10,7 @@ const Wrapper = styled(RowContainer)`
   background-color: #123;
   width: ${({width=1, size=DEFAULT_SIZE}) => width * size + (width - 1) * MARGIN}px;
   height: ${({height=1, size=DEFAULT_SIZE}) => height * DEFAULT_SIZE + (height - 1) * MARGIN}px;
-  top: ${({top=0, size=DEFAULT_SIZE}) => top * (DEFAULT_SIZE + MARGIN)}px;
-  left: ${({left=0, size=DEFAULT_SIZE}) => left * (DEFAULT_SIZE + MARGIN)}px;
+  transform: translate(${({left=0, size=DEFAULT_SIZE}) => left * (size + MARGIN)}px, ${({top=0, size=DEFAULT_SIZE}) => top * (size + MARGIN)}px);
   margin: ${MARGIN}px;
 `;
 
