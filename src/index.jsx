@@ -1,3 +1,5 @@
+import { hot } from 'react-hot-loader/root';
+
 import React from "react";
 import ReactDOM from "react-dom";
 import GlobalStyle from "~/components/globalStyles";
@@ -5,6 +7,7 @@ import { Grid } from "~/components/Grid/Grid";
 
 
 const App = () => {
+    throw new Error("new");
     return (
         <>
             <GlobalStyle/>
@@ -17,4 +20,4 @@ const renderApp = (Component) => {
     ReactDOM.render(<Component/>, document.getElementById('root'));
 }
 
-renderApp(App);
+renderApp(hot(App));

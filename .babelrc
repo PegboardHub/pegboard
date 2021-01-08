@@ -4,11 +4,17 @@
     "@babel/preset-env"
   ],
   "plugins": [
-    ["module-resolver", {
-      "root": ["./src"],
-      "alias": {
-        "~": "./src"
+    "react-hot-loader/babel",
+    [
+      "module-resolver",
+      {
+        "root": [
+          "./src"
+        ],
+        "alias": {
+          "~": "./src"
+        }
       }
-    }]
+    ]
   ]
 }
