@@ -6,6 +6,7 @@ import _ from 'lodash';
 import { calculateResize, checkCollisions, createCollisionBoard } from "./calculations";
 import { getRandomColor, isOnEdge } from './utils';
 import { withResizeDetector } from 'react-resize-detector';
+import { Constraints, Input } from "./types";
 
 
 const SIZE = 100;
@@ -19,7 +20,7 @@ const OuterContainer = styled.div`
 `;
 
 
-const Cell = styled.div`
+const Cell = styled.div<{size: number, margin: number}>`
   width: ${({ size = SIZE, margin = MARGIN }) => size + margin * 2}px;
   height: ${({ size = SIZE, margin = MARGIN }) => size + margin * 2}px;
   /* background-color: #d1d1d1; */
@@ -29,7 +30,7 @@ const Cell = styled.div`
 `;
 
 
-const Container = styled.div`
+const Container = styled.div<{isCol: boolean}>`
   display: flex;
   flex-direction: ${props => props.isCol ? 'column' : 'row'};
 `;
@@ -41,7 +42,7 @@ const Edge = styled.div`
   /* background-color: black; */
 `;
 
-const TopEdge = styled(Edge)`
+const TopEdge = styled(Edge)<{size: number}>`
   top: 0;
   left: 0;
   height: ${({ size }) => size}px;
@@ -49,7 +50,7 @@ const TopEdge = styled(Edge)`
   cursor: ns-resize;
 `;
 
-const BottomEdge = styled(Edge)`
+const BottomEdge = styled(Edge)<{size: number}>`
   left: 0;
   bottom: 0;
   height: ${({ size }) => size}px;
@@ -57,7 +58,7 @@ const BottomEdge = styled(Edge)`
   cursor: ns-resize;
 `;
 
-const LeftEdge = styled(Edge)`
+const LeftEdge = styled(Edge)<{size: number}>`
   top: 0;
   left: 0;
   width: ${({ size }) => size}px;
@@ -65,7 +66,7 @@ const LeftEdge = styled(Edge)`
   cursor: ew-resize;
 `;
 
-const RightEdge = styled(Edge)`
+const RightEdge = styled(Edge)<{size: number}>`
   top: 0;
   right: 0;
   width: ${({ size }) => size}px;
@@ -74,11 +75,10 @@ const RightEdge = styled(Edge)`
 `;
 
 
-const Corner = styled(Edge)`
+const Corner = styled(Edge)<{size: number}>`
   width: ${({ size }) => size}px;
   height: ${({ size }) => size}px;
   border-radius: 10px;
-  /* background-color: gray; */
 `;
 
 const TopLeftCorner = styled(Corner)`
@@ -103,7 +103,14 @@ const BottomRightCorner = styled(Corner)`
 `;
 
 
-const Repeat = ({ Component, isCol = false, count = 12, props = {} }) => () => {
+type RepeatProps = {
+  Component: React.FC
+  isCol?: boolean
+  count?: number
+  props?: any
+}
+
+const Repeat = ({ Component, isCol = false, count = 12, props = {} }: RepeatProps) => () => {
   return (
     <Container isCol={isCol}>
       {
@@ -113,7 +120,7 @@ const Repeat = ({ Component, isCol = false, count = 12, props = {} }) => () => {
   )
 }
 
-const Content = styled.div`
+const Content = styled.div<{color: string}>`
   position: relative;
   background-color: ${({ color = '#123' }) => color};
   width: 100%;
@@ -133,7 +140,6 @@ const Warning = styled(animated.div)`
   pointer-events: none;
   top: 0;
   left: 0;
-  /* opacity: 0.5; */
   z-index: 1;
   border-radius: 10px;
 `;
@@ -165,7 +171,7 @@ const input = [
 ]
 
 
-const calculateActual = (curr, size = SIZE, margin = MARGIN) => ({
+const calculateActual = (curr: Input, size = SIZE, margin = MARGIN): Input => ({
   ...curr,
   width: curr.width * size + (curr.width - 1) * margin * 2,
   height: curr.height * size + (curr.height - 1) * margin * 2,
@@ -173,7 +179,23 @@ const calculateActual = (curr, size = SIZE, margin = MARGIN) => ({
   y: curr.y * (size + margin * 2) + margin,
 });
 
-const fn = ({ vals, down, currentIndex, immediate = false}) => prevFn => index => {
+
+
+type fnProps = {
+  vals: Input[]
+  down?: boolean
+  currentIndex?: number
+  immediate?: boolean
+}
+
+type SpringStyleProps = Input & {
+  immediate: (key: any) => boolean,
+  zIndex: number
+  opacity: number
+}
+type SpringFunction = (index: number) => SpringStyleProps
+
+const fn = ({ vals, down, currentIndex, immediate = false}: fnProps) => (prevFn?: SpringFunction): SpringFunction => (index: number) => {
   return {
     ...vals[index],
     width: vals[index].width,
@@ -183,34 +205,48 @@ const fn = ({ vals, down, currentIndex, immediate = false}) => prevFn => index =
     opacity: down && (index === currentIndex) ? 0.8 : 1,
     immediate: key => immediate || ['zIndex'].includes(key),
     zIndex: down ? (index === currentIndex ? 1 : 0) : prevFn?.(index)?.zIndex ?? 0,
-    // to: [{zIndex: down && (index === currentIndex) ? 1 : 0}, {zIndex: 0}],
   }
 }
 
-const warningFn = ({currentIndex, isWarning}) => index => {
+type WarningFnProps = {
+  currentIndex?: number
+  isWarning?: boolean
+}
+
+type WarningStyleProps = {
+  opacity: number
+}
+
+const warningFn = ({currentIndex, isWarning}: WarningFnProps) => (index: number): WarningStyleProps => {
   return {
     opacity: currentIndex === index && isWarning ? 0.3 : 0
   }
 }
 
+type BackGridType = {
+  size: number
+  margin: number
+  xCount: number
+  yCount: number
+}
 
-const BackGrid = ({ size, margin, xCount, yCount }) => {
+const BackGrid: React.FC<BackGridType> = ({ size, margin, xCount, yCount }) => {
   const Comp = Repeat({ Component: Repeat({ Component: Cell, count: xCount, props: { size, margin } }), isCol: true, count: yCount });
   return <Comp />
 }
 
 export const Grid = withResizeDetector(({ width }) => {
-  const order = useRef(input);
-  const [constraints, setConstraints] = useState({
+  const order = useRef<Input[]>(input);
+  const [constraints, setConstraints] = useState<Constraints>({
     x: 12,
     y: 6,
     margin: MARGIN,
   });
-  const size = useMemo(() => Math.floor((width - (constraints.margin * 2 * constraints.x)) / constraints.x) || SIZE, [width]);
-  const [warningProps, warningSet] = useSprings(input.length, warningFn({}));
-  const [props, set] = useSprings(input.length, fn({ vals: order.current.map(c => calculateActual(c, size, constraints.margin)) })());
+  const size = useMemo(() => Math.floor(((width ?? 0) - (constraints.margin * 2 * constraints.x)) / constraints.x) || SIZE, [width]);
+  const [warningProps, warningSet] = useSprings<WarningStyleProps>(input.length, warningFn({}));
+  const [props, set] = useSprings<SpringStyleProps>(input.length, fn({ vals: order.current.map(c => calculateActual(c, size, constraints.margin)) })());
   useEffect(() => {
-    set(fn({ vals: order.current.map(c => calculateActual(c, size, constraints.margin)), immediate: true })())
+    set(fn({vals: order.current.map(c => calculateActual(c, size, constraints.margin)), immediate: true})())
   }, [size]);
 
   const bind = useDrag(({ event, xy, args: [i], first, memo, down, movement: [x, y] }) => {
@@ -219,12 +255,12 @@ export const Grid = withResizeDetector(({ width }) => {
     const movedCellX = Math.round(x / (size + 2 * constraints.margin));
     const movedCellY = Math.round(y / (size + 2 * constraints.margin));
 
-    const sizes = event.currentTarget.getBoundingClientRect();
+    const sizes = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const onEdge = first ? isOnEdge(sizes, xy, EDGE_THRESHOLD) : memo.onEdge;
 
-    const newMap = [...order.current];
+    const newMap: Input[] = [...order.current];
     const board = first ? createCollisionBoard(constraints.x, constraints.y, i, newMap) : memo.board;
-    let wantedCell;
+    let wantedCell: Partial<Input>;
     if (onEdge) {
       // for scaling
       wantedCell = calculateResize(currDim, onEdge, movedCellX, movedCellY, constraints, down);
@@ -267,7 +303,7 @@ export const Grid = withResizeDetector(({ width }) => {
   return (
     <OuterContainer>
       <div style={{ position: 'absolute' }}>
-        <BackGrid size={size} xCount={constraints.x} yCount={constraints.y} />
+        <BackGrid size={size} margin={constraints.margin} xCount={constraints.x} yCount={constraints.y} />
       </div>
       <div style={{ position: 'relative', top: 0, left: 0 }}>
         {
@@ -276,10 +312,11 @@ export const Grid = withResizeDetector(({ width }) => {
               <animated.div
                 {...bind(i)}
                 key={i}
+                // @ts-ignore
                 style={{
                   ...rest,
                   position: 'absolute',
-                  transform: interpolate([x, y], (x, y) => `translate3d(${x}px,${y}px,0)`)
+                  transform: interpolate([x, y], (x, y) => `translate3d(${x}px,${y}px,0)`),
                 }}
                 children={<Wrapper>
                   <TopEdge size={EDGE_THRESHOLD - 2} />
@@ -290,7 +327,7 @@ export const Grid = withResizeDetector(({ width }) => {
                   <TopRightCorner size={EDGE_THRESHOLD - 2} />
                   <BottomLeftCorner size={EDGE_THRESHOLD - 2} />
                   <BottomRightCorner size={EDGE_THRESHOLD - 2} />
-
+                  {/* @ts-ignore */}
                   <Warning style={{...warningProps[i]}} />
                   <Content color={order.current[i].backgroundColor}>
 

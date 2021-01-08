@@ -1,10 +1,13 @@
+import { Constraints, Dimensions } from './types';
 import {LEFT_EDGE, RIGHT_EDGE, TOP_EDGE, BOTTOM_EDGE } from './utils';
 
 
-const START_SIDE = 1
-const END_SIDE = 2
+const START_SIDE = 'START_SIDE'
+const END_SIDE = 'END_SIDE'
 
-const constraintTo = (side, deltaX, srcX, srcSize, maxX) => {
+type Side = 'START_SIDE' | 'END_SIDE';
+
+const constraintTo = (side: Side, deltaX: number, srcX: number, srcSize: number, maxX: number) => {
   let xToRet = srcX
   let sizeToRet = srcSize
   if (side === START_SIDE) { 
@@ -31,7 +34,7 @@ const constraintTo = (side, deltaX, srcX, srcSize, maxX) => {
   };
 }
 
-export const calculateResize = (src, onEdge, x, y, boardSize, isDown) => {
+export const calculateResize = <T extends Dimensions>(src: T, onEdge: number, x: number, y: number, boardSize: Constraints, isDown: boolean): T => {
   let { x: newX, y: newY, width: newWidth, height: newHeight } = src;
 
 
@@ -61,8 +64,8 @@ export const calculateResize = (src, onEdge, x, y, boardSize, isDown) => {
   };
 }
 
-export const createCollisionBoard = (sizeX, sizeY, currentIndex, objects) => {
-  const board = [];
+export const createCollisionBoard = <T extends Dimensions>(sizeX: number, sizeY: number, currentIndex: number, objects: T[]): number[][] => {
+  const board: number[][] = [];
   for (let x = 0; x < sizeX; x++) {
     board[x] = new Array(sizeY);
   }
@@ -82,7 +85,7 @@ export const createCollisionBoard = (sizeX, sizeY, currentIndex, objects) => {
 }
 
 
-export const checkCollisions = (movingObj, board) => {
+export const checkCollisions = <T extends Dimensions>(movingObj: T, board: number[][]) => {
   for (let x = movingObj.x; x < movingObj.x + movingObj.width; x++) {
     for (let y = movingObj.y; y < movingObj.y + movingObj.height; y++) {
       if(board[x][y] !== undefined) {

@@ -11,7 +11,7 @@ const dist = path.resolve(__dirname, "build")
 
 module.exports = {
     devtool: isDevelopment && "cheap-module-source-map",
-    entry: ['react-hot-loader/patch', path.resolve(src, 'index.jsx')],
+    entry: ['react-hot-loader/patch', path.resolve(src, 'index.tsx')],
     mode: isDevelopment ? 'development' : 'production',
     output: {
         library: 'dashall',
@@ -25,7 +25,7 @@ module.exports = {
         isDevelopment && new ErrorOverlayPlugin(),
     ].filter(Boolean),
     resolve: {
-        extensions: ['.js', '.jsx'],
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
     },
     devServer: {
         contentBase: dist,
@@ -36,7 +36,7 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.jsx?/,
+                test: /\.[jt]sx?/,
                 exclude: /node_modules/,
                 include: src,
                 loader: require.resolve("babel-loader"),

@@ -1,3 +1,5 @@
+import { Dimensions } from "./types";
+
 export const getRandomColor = () => {
   const letters = '0123456789ABCDEF';
   let color = '#';
@@ -14,7 +16,8 @@ export const TOP_EDGE = 4;
 export const BOTTOM_EDGE = 8;
 
 
-export const isOnEdge = (boundingBox, [x, y], threshold = 10) => {
+export const isOnEdge = (boundingBox: Dimensions, place: [x: number, y: number], threshold: number = 10): number => {
+  const [x, y] = place;
   let mask = 0;
   // left edge
   if(x - boundingBox.x >= 0 && x - boundingBox.x <= threshold && y >= boundingBox.y && y <= boundingBox.y + boundingBox.height) {
