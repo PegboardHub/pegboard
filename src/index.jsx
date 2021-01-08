@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import GlobalStyle from "./components/Grid/globalStyles";
-import { Grid } from "./components/Grid/Grid";
+import GlobalStyle from "~/components/globalStyles";
+import { Grid } from "~/components/Grid/Grid";
 
 
 const App = () => {
