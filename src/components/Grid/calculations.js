@@ -1,4 +1,4 @@
-import { getRandomColor, isOnEdge, LEFT_EDGE, RIGHT_EDGE, TOP_EDGE, BOTTOM_EDGE } from './utils';
+import {LEFT_EDGE, RIGHT_EDGE, TOP_EDGE, BOTTOM_EDGE } from './utils';
 
 
 const START_SIDE = 1

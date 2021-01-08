@@ -180,9 +180,10 @@ const fn = ({ vals, down, currentIndex, immediate = false}) => index => {
     height: vals[index].height,
     x: vals[index].x,
     y: vals[index].y,
-    zIndex: down && (index === currentIndex) ? 1 : 0,
     opacity: down && (index === currentIndex) ? 0.8 : 1,
     immediate: key => immediate || ['zIndex'].includes(key),
+    from: {zIndex: down && (index === currentIndex) ? 1 : 0},
+    to: [{zIndex: down && (index === currentIndex) ? 1 : 0}, {zIndex: 0}],
   }
 }
 
