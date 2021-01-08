@@ -173,7 +173,7 @@ const calculateActual = (curr, size = SIZE, margin = MARGIN) => ({
   y: curr.y * (size + margin * 2) + margin,
 });
 
-const fn = ({ vals, down, currentIndex, immediate = false}) => index => {
+const fn = ({ vals, down, currentIndex, immediate = false}) => prevFn => index => {
   return {
     ...vals[index],
     width: vals[index].width,
@@ -182,8 +182,8 @@ const fn = ({ vals, down, currentIndex, immediate = false}) => index => {
     y: vals[index].y,
     opacity: down && (index === currentIndex) ? 0.8 : 1,
     immediate: key => immediate || ['zIndex'].includes(key),
-    from: {zIndex: down && (index === currentIndex) ? 1 : 0},
-    to: [{zIndex: down && (index === currentIndex) ? 1 : 0}, {zIndex: 0}],
+    zIndex: down ? (index === currentIndex ? 1 : 0) : prevFn?.(index)?.zIndex ?? 0,
+    // to: [{zIndex: down && (index === currentIndex) ? 1 : 0}, {zIndex: 0}],
   }
 }
 
@@ -208,9 +208,9 @@ export const Grid = withResizeDetector(({ width }) => {
   });
   const size = useMemo(() => Math.floor((width - (constraints.margin * 2 * constraints.x)) / constraints.x) || SIZE, [width]);
   const [warningProps, warningSet] = useSprings(input.length, warningFn({}));
-  const [props, set] = useSprings(input.length, fn({ vals: order.current.map(c => calculateActual(c, size, constraints.margin)) }));
+  const [props, set] = useSprings(input.length, fn({ vals: order.current.map(c => calculateActual(c, size, constraints.margin)) })());
   useEffect(() => {
-    set(fn({ vals: order.current.map(c => calculateActual(c, size, constraints.margin)), immediate: true }))
+    set(fn({ vals: order.current.map(c => calculateActual(c, size, constraints.margin)), immediate: true })())
   }, [size]);
 
   const bind = useDrag(({ event, xy, args: [i], first, memo, down, movement: [x, y] }) => {
@@ -254,11 +254,12 @@ export const Grid = withResizeDetector(({ width }) => {
     } else {
       warningSet(warningFn({currentIndex: i, isWarning: isColliding}));
     }
-
-    set(fn({ vals: actual, down, currentIndex: i}))
+    const newFn = fn({ vals: actual, down, currentIndex: i})(memo?.prevFn);
+    set(newFn)
     return {
       onEdge,
       board,
+      prevFn: newFn,
     }
   })
 
