@@ -1,4 +1,4 @@
-# Dashall
+# Pegboard
 ## Generic dashboard maker
 
 ![](./logo.png)
