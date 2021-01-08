@@ -7,7 +7,6 @@ import { Grid } from "~/components/Grid/Grid";
 
 
 const App = () => {
-    throw new Error("new");
     return (
         <>
             <GlobalStyle/>
