@@ -1,4 +1,4 @@
-# Pegboard
+# Pegboard - Frontend
 ## Generic dashboard maker
 
 ![](./logo.png)
