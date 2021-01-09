@@ -120,7 +120,7 @@ const Repeat = ({ Component, isCol = false, count = 12, props = {} }: RepeatProp
   )
 }
 
-const Content = styled.div<{color: string}>`
+const Content = styled.div<{color?: string}>`
   position: relative;
   background-color: ${({ color = '#123' }) => color};
   width: 100%;
@@ -162,7 +162,7 @@ const Wrapper = styled.div`
 
 
 
-const input = [
+const input: Input[] = [
   { x: 1, y: 1, width: 1, height: 1, backgroundColor: getRandomColor() },
   { x: 1, y: 2, width: 1, height: 1, backgroundColor: getRandomColor()  },
   { x: 1, y: 3, width: 2, height: 1, backgroundColor: getRandomColor()  },

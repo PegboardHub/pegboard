@@ -10,7 +10,7 @@ export type Size = {
 export type Dimensions = Pos & Size;
 
 export type Input = Dimensions & {
-    backgroundColor: string
+    backgroundColor?: string
 };
 
 
