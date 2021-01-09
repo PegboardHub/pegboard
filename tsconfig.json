@@ -20,7 +20,7 @@
     "paths": {
         "~/*": ["*"]
     }
-  }
+  },
   // Import custom typings
-//   "include": ["src/**/*"]
+  "include": ["src/**/*"]
 }
