@@ -3,7 +3,7 @@ import React from 'react';
 import Grid from './Grid';
 
 export default {
-  title: 'Example/Grid',
+  title: 'Components/Grid/Grid',
   component: Grid,
 };
 
