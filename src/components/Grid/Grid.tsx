@@ -18,6 +18,7 @@ const OuterContainer = styled.div`
   display: flex;
   flex: 1;
   position: relative;
+  min-height: 100px;
 `;
 
 
