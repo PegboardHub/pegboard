@@ -10,7 +10,7 @@ const App = () => {
   return (
     <>
       <GlobalStyle/>
-      <Grid/>
+      <Grid debugGrid/>
     </>
   );
 };

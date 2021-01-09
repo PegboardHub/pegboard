@@ -17,6 +17,7 @@ const OuterContainer = styled.div`
   flex: 1;
   position: relative;
   min-height: 100px;
+  /* justify-content: center; */
 `;
 
 const Cell = styled.div<{size: number; margin: number; shown: boolean}>`
@@ -250,7 +251,7 @@ export const Grid: React.FC<GridProps> = withResizeDetector<GridProps & {width: 
       }),
       [maxX, maxY],
   );
-  const size = useMemo(() => Math.floor(((width ?? 0) - constraints.margin * 2 * constraints.x) / constraints.x) || SIZE, [width, constraints]);
+  const size = useMemo(() => Math.floor(((width ?? 0) - 15 - constraints.margin * 2 * constraints.x) / constraints.x) || SIZE, [width, constraints]);
   const [warningProps, warningSet] = useSprings<WarningStyleProps>(input.length, warningFn({}));
   const [props, set] = useSprings<SpringStyleProps>(input.length, fn({vals: order.current.map((c) => calculateActual(c, size, constraints.margin))})());
   useEffect(() => {
@@ -293,8 +294,8 @@ export const Grid: React.FC<GridProps> = withResizeDetector<GridProps & {width: 
         actual = order.current.map((c) => calculateActual(c, size, constraints.margin)); // restore original
       } else {
         const oldMap = order.current;
+        order.current = newMap;
         if (JSON.stringify(oldMap) !== JSON.stringify(newMap)) {
-          order.current = newMap;
           onInputChange?.(order.current);
         }
       }
@@ -311,12 +312,14 @@ export const Grid: React.FC<GridProps> = withResizeDetector<GridProps & {width: 
     };
   });
 
+  const containerHeight = useMemo(() => (size + constraints.margin*2)*constraints.y, [constraints, size]);
+
   return (
-    <OuterContainer>
+    <OuterContainer style={{height: containerHeight}}>
       <div style={{position: 'absolute'}}>
         <BackGrid shown={debugGrid} size={size} margin={constraints.margin} xCount={constraints.x} yCount={constraints.y} />
       </div>
-      <div style={{position: 'relative', top: 0, left: 0}}>
+      <div style={{position: 'relative', top: 0, width: (size + constraints.margin*2)*constraints.x, height: containerHeight}}>
         {props.map(({x, y, backgroundColor, ...rest}, i) => {
           return (
             <animated.div
