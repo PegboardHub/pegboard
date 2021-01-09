@@ -22,7 +22,7 @@ const OuterContainer = styled.div`
 `;
 
 
-const Cell = styled.div<{size: number, margin: number}>`
+const Cell = styled.div<{ size: number, margin: number }>`
   width: ${({ size = SIZE, margin = MARGIN }) => size + margin * 2}px;
   height: ${({ size = SIZE, margin = MARGIN }) => size + margin * 2}px;
   /* background-color: #d1d1d1; */
@@ -32,7 +32,7 @@ const Cell = styled.div<{size: number, margin: number}>`
 `;
 
 
-const Container = styled.div<{isCol: boolean}>`
+const Container = styled.div<{ isCol: boolean }>`
   display: flex;
   flex-direction: ${props => props.isCol ? 'column' : 'row'};
 `;
@@ -44,7 +44,7 @@ const Edge = styled.div`
   /* background-color: black; */
 `;
 
-const TopEdge = styled(Edge)<{size: number}>`
+const TopEdge = styled(Edge) <{ size: number }>`
   top: 0;
   left: 0;
   height: ${({ size }) => size}px;
@@ -52,7 +52,7 @@ const TopEdge = styled(Edge)<{size: number}>`
   cursor: ns-resize;
 `;
 
-const BottomEdge = styled(Edge)<{size: number}>`
+const BottomEdge = styled(Edge) <{ size: number }>`
   left: 0;
   bottom: 0;
   height: ${({ size }) => size}px;
@@ -60,7 +60,7 @@ const BottomEdge = styled(Edge)<{size: number}>`
   cursor: ns-resize;
 `;
 
-const LeftEdge = styled(Edge)<{size: number}>`
+const LeftEdge = styled(Edge) <{ size: number }>`
   top: 0;
   left: 0;
   width: ${({ size }) => size}px;
@@ -68,7 +68,7 @@ const LeftEdge = styled(Edge)<{size: number}>`
   cursor: ew-resize;
 `;
 
-const RightEdge = styled(Edge)<{size: number}>`
+const RightEdge = styled(Edge) <{ size: number }>`
   top: 0;
   right: 0;
   width: ${({ size }) => size}px;
@@ -77,7 +77,7 @@ const RightEdge = styled(Edge)<{size: number}>`
 `;
 
 
-const Corner = styled(Edge)<{size: number}>`
+const Corner = styled(Edge) <{ size: number }>`
   width: ${({ size }) => size}px;
   height: ${({ size }) => size}px;
   border-radius: 10px;
@@ -122,7 +122,7 @@ const Repeat = ({ Component, isCol = false, count = 12, props = {} }: RepeatProp
   )
 }
 
-const Content = styled.div<{color?: string}>`
+const Content = styled.div<{ color?: string }>`
   position: relative;
   background-color: ${({ color = '#123' }) => color};
   width: 100%;
@@ -166,10 +166,10 @@ const Wrapper = styled.div`
 
 const input: Input[] = [
   { x: 1, y: 1, width: 1, height: 1, backgroundColor: getRandomColor() },
-  { x: 1, y: 2, width: 1, height: 1, backgroundColor: getRandomColor()  },
-  { x: 1, y: 3, width: 2, height: 1, backgroundColor: getRandomColor()  },
-  { x: 6, y: 3, width: 1, height: 1, backgroundColor: getRandomColor()  },
-  { x: 6, y: 1, width: 1, height: 1, backgroundColor: getRandomColor()  },
+  { x: 1, y: 2, width: 1, height: 1, backgroundColor: getRandomColor() },
+  { x: 1, y: 3, width: 2, height: 1, backgroundColor: getRandomColor() },
+  { x: 6, y: 3, width: 1, height: 1, backgroundColor: getRandomColor() },
+  { x: 6, y: 1, width: 1, height: 1, backgroundColor: getRandomColor() },
 ]
 
 
@@ -197,7 +197,7 @@ type SpringStyleProps = Input & {
 }
 type SpringFunction = (index: number) => SpringStyleProps
 
-const fn = ({ vals, down, currentIndex, immediate = false}: fnProps) => (prevFn?: SpringFunction): SpringFunction => (index: number) => {
+const fn = ({ vals, down, currentIndex, immediate = false }: fnProps) => (prevFn?: SpringFunction): SpringFunction => (index: number) => {
   return {
     ...vals[index],
     width: vals[index].width,
@@ -219,7 +219,7 @@ type WarningStyleProps = {
   opacity: number
 }
 
-const warningFn = ({currentIndex, isWarning}: WarningFnProps) => (index: number): WarningStyleProps => {
+const warningFn = ({ currentIndex, isWarning }: WarningFnProps) => (index: number): WarningStyleProps => {
   return {
     opacity: currentIndex === index && isWarning ? 0.3 : 0
   }
@@ -243,20 +243,22 @@ export type GridProps = {
   maxX?: number
   /** max cells in y direction */
   maxY?: number
+  /** show debug grid */
+  debugGrid?: boolean
 }
 
-export const Grid: React.FC<GridProps> = withResizeDetector<{maxX: number, maxY: number, width: number}>(({ width, maxX, maxY }) => {
+export const Grid: React.FC<GridProps> = withResizeDetector<GridProps & { width: number }>(({ width, maxX, maxY, debugGrid=false }) => {
   const order = useRef<Input[]>(input);
   const constraints = useMemo<Constraints>(() => ({
-    x: maxX,
-    y: maxY,
+    x: maxX ?? 1,
+    y: maxY ?? 1,
     margin: MARGIN,
   }), [maxX, maxY])
-  const size = useMemo(() => Math.floor(((width ?? 0) - (constraints.margin * 2 * constraints.x)) / constraints.x) || SIZE, [width, constraints]);
+  const size = useMemo(() => Math.floor(((width ?? 0) - (constraints.margin * 2 * constraints.x) - 20) / constraints.x) || SIZE, [width, constraints]);
   const [warningProps, warningSet] = useSprings<WarningStyleProps>(input.length, warningFn({}));
   const [props, set] = useSprings<SpringStyleProps>(input.length, fn({ vals: order.current.map(c => calculateActual(c, size, constraints.margin)) })());
   useEffect(() => {
-    set(fn({vals: order.current.map(c => calculateActual(c, size, constraints.margin)), immediate: true})())
+    set(fn({ vals: order.current.map(c => calculateActual(c, size, constraints.margin)), immediate: true })())
   }, [size]);
 
   const bind = useDrag(({ event, xy, args: [i], first, memo, down, movement: [x, y] }) => {
@@ -298,9 +300,9 @@ export const Grid: React.FC<GridProps> = withResizeDetector<{maxX: number, maxY:
       }
       warningSet(warningFn({}));
     } else {
-      warningSet(warningFn({currentIndex: i, isWarning: isColliding}));
+      warningSet(warningFn({ currentIndex: i, isWarning: isColliding }));
     }
-    const newFn = fn({ vals: actual, down, currentIndex: i})(memo?.prevFn);
+    const newFn = fn({ vals: actual, down, currentIndex: i })(memo?.prevFn);
     set(newFn)
     return {
       onEdge,
@@ -313,7 +315,11 @@ export const Grid: React.FC<GridProps> = withResizeDetector<{maxX: number, maxY:
   return (
     <OuterContainer>
       <div style={{ position: 'absolute' }}>
-        <BackGrid size={size} margin={constraints.margin} xCount={constraints.x} yCount={constraints.y} />
+        {
+          debugGrid && (
+            <BackGrid size={size} margin={constraints.margin} xCount={constraints.x} yCount={constraints.y} />
+          )
+        }
       </div>
       <div style={{ position: 'relative', top: 0, left: 0 }}>
         {
@@ -338,7 +344,7 @@ export const Grid: React.FC<GridProps> = withResizeDetector<{maxX: number, maxY:
                   <BottomLeftCorner size={EDGE_THRESHOLD - 2} />
                   <BottomRightCorner size={EDGE_THRESHOLD - 2} />
                   {/* @ts-ignore */}
-                  <Warning style={{...warningProps[i]}} />
+                  <Warning style={{ ...warningProps[i] }} />
                   <Content color={order.current[i].backgroundColor}>
 
                   </Content>
@@ -358,7 +364,8 @@ export const Grid: React.FC<GridProps> = withResizeDetector<{maxX: number, maxY:
 Grid.displayName = 'Grid';
 Grid.defaultProps = {
   maxX: 12,
-  maxY: 6
+  maxY: 6,
+  debugGrid: false,
 }
 
 export default Grid;
