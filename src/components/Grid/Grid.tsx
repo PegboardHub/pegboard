@@ -22,12 +22,12 @@ const OuterContainer = styled.div`
 `;
 
 
-const Cell = styled.div<{ size: number, margin: number }>`
+const Cell = styled.div<{ size: number, margin: number, shown: boolean }>`
   width: ${({ size = SIZE, margin = MARGIN }) => size + margin * 2}px;
   height: ${({ size = SIZE, margin = MARGIN }) => size + margin * 2}px;
   /* background-color: #d1d1d1; */
   box-sizing: border-box;
-  border: 1px solid black;
+  border: ${({shown}) => shown && "1px solid black"};
   opacity: 0.4;
 `;
 
@@ -230,10 +230,11 @@ type BackGridType = {
   margin: number
   xCount: number
   yCount: number
+  shown: boolean
 }
 
-const BackGrid: React.FC<BackGridType> = ({ size, margin, xCount, yCount }) => {
-  const Comp = Repeat({ Component: Repeat({ Component: Cell, count: xCount, props: { size, margin } }), isCol: true, count: yCount });
+const BackGrid: React.FC<BackGridType> = ({ size, margin, xCount, yCount, shown }) => {
+  const Comp = Repeat({ Component: Repeat({ Component: Cell, count: xCount, props: { size, margin, shown } }), isCol: true, count: yCount });
   return <Comp />
 }
 
@@ -247,14 +248,14 @@ export type GridProps = {
   debugGrid?: boolean
 }
 
-export const Grid: React.FC<GridProps> = withResizeDetector<GridProps & { width: number }>(({ width, maxX, maxY, debugGrid=false }) => {
+export const Grid: React.FC<GridProps> = withResizeDetector<GridProps & { width: number }>(({ width, maxX, maxY, debugGrid = false }) => {
   const order = useRef<Input[]>(input);
   const constraints = useMemo<Constraints>(() => ({
     x: maxX ?? 1,
     y: maxY ?? 1,
     margin: MARGIN,
   }), [maxX, maxY])
-  const size = useMemo(() => Math.floor(((width ?? 0) - (constraints.margin * 2 * constraints.x) - 20) / constraints.x) || SIZE, [width, constraints]);
+  const size = useMemo(() => Math.floor(((width ?? 0) - (constraints.margin * 2 * constraints.x)) / constraints.x) || SIZE, [width, constraints]);
   const [warningProps, warningSet] = useSprings<WarningStyleProps>(input.length, warningFn({}));
   const [props, set] = useSprings<SpringStyleProps>(input.length, fn({ vals: order.current.map(c => calculateActual(c, size, constraints.margin)) })());
   useEffect(() => {
@@ -315,11 +316,7 @@ export const Grid: React.FC<GridProps> = withResizeDetector<GridProps & { width:
   return (
     <OuterContainer>
       <div style={{ position: 'absolute' }}>
-        {
-          debugGrid && (
-            <BackGrid size={size} margin={constraints.margin} xCount={constraints.x} yCount={constraints.y} />
-          )
-        }
+        <BackGrid shown={debugGrid} size={size} margin={constraints.margin} xCount={constraints.x} yCount={constraints.y} />
       </div>
       <div style={{ position: 'relative', top: 0, left: 0 }}>
         {
