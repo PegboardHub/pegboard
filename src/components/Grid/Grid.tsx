@@ -248,6 +248,9 @@ export type GridProps = {
   debugGrid?: boolean
 }
 
+/**
+ * Currently doesn't support mobile sizes
+ */
 export const Grid: React.FC<GridProps> = withResizeDetector<GridProps & { width: number }>(({ width, maxX, maxY, debugGrid = false }) => {
   const order = useRef<Input[]>(input);
   const constraints = useMemo<Constraints>(() => ({
