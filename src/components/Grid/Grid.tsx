@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
-import { useSprings, animated, interpolate } from "react-spring"
+import PropTypes from "prop-types";
+import { useSprings, animated, interpolate } from "react-spring";
 import { useDrag } from "react-use-gesture";
 import styled from 'styled-components';
 import _ from 'lodash';
@@ -104,7 +105,7 @@ const BottomRightCorner = styled(Corner)`
 
 
 type RepeatProps = {
-  Component: React.FC
+  Component: React.ComponentType
   isCol?: boolean
   count?: number
   props?: any
@@ -235,14 +236,22 @@ const BackGrid: React.FC<BackGridType> = ({ size, margin, xCount, yCount }) => {
   return <Comp />
 }
 
-export const Grid = withResizeDetector(({ width }) => {
+
+export type GridProps = {
+  /** max cells in x direction */
+  maxX?: number
+  /** max cells in y direction */
+  maxY?: number
+}
+
+export const Grid: React.FC<GridProps> = withResizeDetector<{maxX: number, maxY: number, width: number}>(({ width, maxX, maxY }) => {
   const order = useRef<Input[]>(input);
-  const [constraints, setConstraints] = useState<Constraints>({
-    x: 12,
-    y: 6,
+  const constraints = useMemo<Constraints>(() => ({
+    x: maxX,
+    y: maxY,
     margin: MARGIN,
-  });
-  const size = useMemo(() => Math.floor(((width ?? 0) - (constraints.margin * 2 * constraints.x)) / constraints.x) || SIZE, [width]);
+  }), [maxX, maxY])
+  const size = useMemo(() => Math.floor(((width ?? 0) - (constraints.margin * 2 * constraints.x)) / constraints.x) || SIZE, [width, constraints]);
   const [warningProps, warningSet] = useSprings<WarningStyleProps>(input.length, warningFn({}));
   const [props, set] = useSprings<SpringStyleProps>(input.length, fn({ vals: order.current.map(c => calculateActual(c, size, constraints.margin)) })());
   useEffect(() => {
@@ -343,4 +352,12 @@ export const Grid = withResizeDetector(({ width }) => {
       </div>
     </OuterContainer>
   )
-});
+}) as React.FC<GridProps>;
+
+Grid.displayName = 'Grid';
+Grid.defaultProps = {
+  maxX: 12,
+  maxY: 6
+}
+
+export default Grid;
