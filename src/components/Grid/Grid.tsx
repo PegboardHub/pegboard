@@ -17,7 +17,7 @@ const OuterContainer = styled.div`
   flex: 1;
   position: relative;
   min-height: 100px;
-  /* justify-content: center; */
+  justify-content: center;
 `;
 
 const Cell = styled.div<{size: number; margin: number; shown: boolean}>`
@@ -26,7 +26,7 @@ const Cell = styled.div<{size: number; margin: number; shown: boolean}>`
   /* background-color: #d1d1d1; */
   box-sizing: border-box;
   border: ${({shown}) => shown && '1px solid black'};
-  opacity: 0.4;
+  opacity: 0.2;
 `;
 
 const Container = styled.div<{isCol: boolean}>`
@@ -312,14 +312,15 @@ export const Grid: React.FC<GridProps> = withResizeDetector<GridProps & {width: 
     };
   });
 
-  const containerHeight = useMemo(() => (size + constraints.margin*2)*constraints.y, [constraints, size]);
+  const containerWidth = useMemo(() => (size + constraints.margin*2)*constraints.x, [constraints, size]);
+  const containerHeight = useMemo(() => (size + constraints.margin*2)*constraints.y + constraints.margin, [constraints, size]);
 
   return (
     <OuterContainer style={{height: containerHeight}}>
       <div style={{position: 'absolute'}}>
         <BackGrid shown={debugGrid} size={size} margin={constraints.margin} xCount={constraints.x} yCount={constraints.y} />
       </div>
-      <div style={{position: 'relative', top: 0, width: (size + constraints.margin*2)*constraints.x, height: containerHeight}}>
+      <div style={{position: 'relative', top: 0, width: containerWidth, height: containerHeight}}>
         {props.map(({x, y, backgroundColor, ...rest}, i) => {
           return (
             <animated.div

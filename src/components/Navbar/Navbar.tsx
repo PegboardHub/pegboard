@@ -1,10 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import {RowContainer} from '../common';
+import {ColContainer} from '../common';
 
 
-const StyledNavBar = styled(RowContainer)`
-
+const StyledNavBar = styled(ColContainer)`
+  width: 110px;
+  border-right: 1px solid gray;
 `;
 
 

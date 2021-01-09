@@ -37,7 +37,6 @@ const constraintTo = (side: Side, deltaX: number, srcX: number, srcSize: number,
 export const calculateResize = <T extends Dimensions>(src: T, onEdge: number, x: number, y: number, boardSize: Constraints, isDown: boolean): T => {
   let {x: newX, y: newY, width: newWidth, height: newHeight} = src;
 
-
   let newXDim = {x: newX, size: newWidth};
   let newYDim = {x: newY, size: newHeight};
   if (onEdge & LEFT_EDGE) {
