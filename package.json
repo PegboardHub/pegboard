@@ -4,7 +4,7 @@
   "license": "MIT",
   "scripts": {
     "start": "webpack serve",
-    "lint": "eslint --ext .ts --ext .js --ext .jsx --ext .tsx src/",
+    "lint": "eslint --ext .ts --ext .js --ext .jsx --ext .tsx src/ --fix",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   },
