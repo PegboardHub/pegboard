@@ -8,7 +8,6 @@ import {getRandomColor, isOnEdge} from './utils';
 import {withResizeDetector} from 'react-resize-detector';
 import {Constraints, Input} from './types';
 
-
 const SIZE = 100;
 const MARGIN = 5;
 const EDGE_THRESHOLD = 10;
@@ -20,8 +19,7 @@ const OuterContainer = styled.div`
   min-height: 100px;
 `;
 
-
-const Cell = styled.div<{ size: number, margin: number, shown: boolean }>`
+const Cell = styled.div<{size: number; margin: number; shown: boolean}>`
   width: ${({size = SIZE, margin = MARGIN}) => size + margin * 2}px;
   height: ${({size = SIZE, margin = MARGIN}) => size + margin * 2}px;
   /* background-color: #d1d1d1; */
@@ -30,10 +28,9 @@ const Cell = styled.div<{ size: number, margin: number, shown: boolean }>`
   opacity: 0.4;
 `;
 
-
-const Container = styled.div<{ isCol: boolean }>`
+const Container = styled.div<{isCol: boolean}>`
   display: flex;
-  flex-direction: ${(props) => props.isCol ? 'column' : 'row'};
+  flex-direction: ${(props) => (props.isCol ? 'column' : 'row')};
 `;
 
 const Edge = styled.div`
@@ -43,7 +40,7 @@ const Edge = styled.div`
   /* background-color: black; */
 `;
 
-const TopEdge = styled(Edge) <{ size: number }>`
+const TopEdge = styled(Edge)<{size: number}>`
   top: 0;
   left: 0;
   height: ${({size}) => size}px;
@@ -51,7 +48,7 @@ const TopEdge = styled(Edge) <{ size: number }>`
   cursor: ns-resize;
 `;
 
-const BottomEdge = styled(Edge) <{ size: number }>`
+const BottomEdge = styled(Edge)<{size: number}>`
   left: 0;
   bottom: 0;
   height: ${({size}) => size}px;
@@ -59,7 +56,7 @@ const BottomEdge = styled(Edge) <{ size: number }>`
   cursor: ns-resize;
 `;
 
-const LeftEdge = styled(Edge) <{ size: number }>`
+const LeftEdge = styled(Edge)<{size: number}>`
   top: 0;
   left: 0;
   width: ${({size}) => size}px;
@@ -67,7 +64,7 @@ const LeftEdge = styled(Edge) <{ size: number }>`
   cursor: ew-resize;
 `;
 
-const RightEdge = styled(Edge) <{ size: number }>`
+const RightEdge = styled(Edge)<{size: number}>`
   top: 0;
   right: 0;
   width: ${({size}) => size}px;
@@ -75,8 +72,7 @@ const RightEdge = styled(Edge) <{ size: number }>`
   cursor: ew-resize;
 `;
 
-
-const Corner = styled(Edge) <{ size: number }>`
+const Corner = styled(Edge)<{size: number}>`
   width: ${({size}) => size}px;
   height: ${({size}) => size}px;
   border-radius: 10px;
@@ -103,23 +99,22 @@ const BottomRightCorner = styled(Corner)`
   cursor: nwse-resize;
 `;
 
-
 type RepeatProps = {
-  children: React.ReactNode
-  isCol?: boolean
-  count?: number
-}
+  children: React.ReactNode;
+  isCol?: boolean;
+  count?: number;
+};
 
 const Repeat: React.FC<RepeatProps> = ({isCol = false, count = 12, children}) => (
   <Container isCol={isCol}>
-    {
-      [...Array(count).keys()].map((_, index) => <div key={index}>{children}</div>)
-    }
+    {[...Array(count).keys()].map((_, index) => (
+      <div key={index}>{children}</div>
+    ))}
   </Container>
 );
 Repeat.displayName = 'Repeat';
 
-const Content = styled.div<{ color?: string }>`
+const Content = styled.div<{color?: string}>`
   position: relative;
   background-color: ${({color = '#123'}) => color};
   width: 100%;
@@ -133,7 +128,7 @@ const Content = styled.div<{ color?: string }>`
 
 const Warning = styled(animated.div)`
   position: absolute;
-  background-color: #F22;
+  background-color: #f22;
   width: 100%;
   height: 100%;
   pointer-events: none;
@@ -142,7 +137,6 @@ const Warning = styled(animated.div)`
   z-index: 1;
   border-radius: 10px;
 `;
-
 
 const Wrapper = styled.div`
   position: relative;
@@ -158,7 +152,6 @@ const Wrapper = styled.div`
   top: 0;
 `;
 
-
 const input: Input[] = [
   {x: 1, y: 1, width: 1, height: 1, backgroundColor: getRandomColor()},
   {x: 1, y: 2, width: 1, height: 1, backgroundColor: getRandomColor()},
@@ -166,7 +159,6 @@ const input: Input[] = [
   {x: 6, y: 3, width: 1, height: 1, backgroundColor: getRandomColor()},
   {x: 6, y: 1, width: 1, height: 1, backgroundColor: getRandomColor()},
 ];
-
 
 const calculateActual = (curr: Input, size = SIZE, margin = MARGIN): Input => ({
   ...curr,
@@ -176,20 +168,19 @@ const calculateActual = (curr: Input, size = SIZE, margin = MARGIN): Input => ({
   y: curr.y * (size + margin * 2) + margin,
 });
 
-
 type fnProps = {
-  vals: Input[]
-  down?: boolean
-  currentIndex?: number
-  immediate?: boolean
-}
+  vals: Input[];
+  down?: boolean;
+  currentIndex?: number;
+  immediate?: boolean;
+};
 
 type SpringStyleProps = Input & {
-  immediate: (key: any) => boolean,
-  zIndex: number
-  opacity: number
-}
-type SpringFunction = (index: number) => SpringStyleProps
+  immediate: (key: any) => boolean;
+  zIndex: number;
+  opacity: number;
+};
+type SpringFunction = (index: number) => SpringStyleProps;
 
 const fn = ({vals, down, currentIndex, immediate = false}: fnProps) => (prevFn?: SpringFunction): SpringFunction => (index: number) => {
   return {
@@ -198,20 +189,20 @@ const fn = ({vals, down, currentIndex, immediate = false}: fnProps) => (prevFn?:
     height: vals[index].height,
     x: vals[index].x,
     y: vals[index].y,
-    opacity: down && (index === currentIndex) ? 0.8 : 1,
+    opacity: down && index === currentIndex ? 0.8 : 1,
     immediate: (key) => immediate || ['zIndex'].includes(key),
     zIndex: down ? (index === currentIndex ? 1 : 0) : prevFn?.(index)?.zIndex ?? 0,
   };
 };
 
 type WarningFnProps = {
-  currentIndex?: number
-  isWarning?: boolean
-}
+  currentIndex?: number;
+  isWarning?: boolean;
+};
 
 type WarningStyleProps = {
-  opacity: number
-}
+  opacity: number;
+};
 
 const warningFn = ({currentIndex, isWarning}: WarningFnProps) => (index: number): WarningStyleProps => {
   return {
@@ -220,12 +211,12 @@ const warningFn = ({currentIndex, isWarning}: WarningFnProps) => (index: number)
 };
 
 type BackGridType = {
-  size: number
-  margin: number
-  xCount: number
-  yCount: number
-  shown: boolean
-}
+  size: number;
+  margin: number;
+  xCount: number;
+  yCount: number;
+  shown: boolean;
+};
 
 const BackGrid: React.FC<BackGridType> = ({size, margin, xCount, yCount, shown}) => (
   <Repeat count={yCount} isCol={true}>
@@ -235,27 +226,29 @@ const BackGrid: React.FC<BackGridType> = ({size, margin, xCount, yCount, shown})
   </Repeat>
 );
 
-
 export type GridProps = {
   /** max cells in x direction */
-  maxX?: number
+  maxX?: number;
   /** max cells in y direction */
-  maxY?: number
+  maxY?: number;
   /** show debug grid */
-  debugGrid?: boolean
-}
+  debugGrid?: boolean;
+};
 
 /**
  * Currently doesn't support mobile sizes
  */
-export const Grid: React.FC<GridProps> = withResizeDetector<GridProps & { width: number }>(({width, maxX, maxY, debugGrid = false}) => {
+export const Grid: React.FC<GridProps> = withResizeDetector<GridProps & {width: number}>(({width, maxX, maxY, debugGrid = false}) => {
   const order = useRef<Input[]>(input);
-  const constraints = useMemo<Constraints>(() => ({
-    x: maxX ?? 1,
-    y: maxY ?? 1,
-    margin: MARGIN,
-  }), [maxX, maxY]);
-  const size = useMemo(() => Math.floor(((width ?? 0) - (constraints.margin * 2 * constraints.x)) / constraints.x) || SIZE, [width, constraints]);
+  const constraints = useMemo<Constraints>(
+      () => ({
+        x: maxX ?? 1,
+        y: maxY ?? 1,
+        margin: MARGIN,
+      }),
+      [maxX, maxY],
+  );
+  const size = useMemo(() => Math.floor(((width ?? 0) - constraints.margin * 2 * constraints.x) / constraints.x) || SIZE, [width, constraints]);
   const [warningProps, warningSet] = useSprings<WarningStyleProps>(input.length, warningFn({}));
   const [props, set] = useSprings<SpringStyleProps>(input.length, fn({vals: order.current.map((c) => calculateActual(c, size, constraints.margin))})());
   useEffect(() => {
@@ -312,48 +305,38 @@ export const Grid: React.FC<GridProps> = withResizeDetector<GridProps & { width:
     };
   });
 
-
   return (
     <OuterContainer>
       <div style={{position: 'absolute'}}>
         <BackGrid shown={debugGrid} size={size} margin={constraints.margin} xCount={constraints.x} yCount={constraints.y} />
       </div>
       <div style={{position: 'relative', top: 0, left: 0}}>
-        {
-          props.map(({x, y, backgroundColor, ...rest}, i) => {
-            return (
-              <animated.div
-                {...bind(i)}
-                key={i}
-                // @ts-ignore
-                style={{
-                  ...rest,
-                  position: 'absolute',
-                  transform: interpolate([x, y], (x, y) => `translate3d(${x}px,${y}px,0)`),
-                }}
-              >
-                <Wrapper>
-                  <TopEdge size={EDGE_THRESHOLD - 2} />
-                  <BottomEdge size={EDGE_THRESHOLD - 2} />
-                  <LeftEdge size={EDGE_THRESHOLD - 2} />
-                  <RightEdge size={EDGE_THRESHOLD - 2} />
-                  <TopLeftCorner size={EDGE_THRESHOLD - 2} />
-                  <TopRightCorner size={EDGE_THRESHOLD - 2} />
-                  <BottomLeftCorner size={EDGE_THRESHOLD - 2} />
-                  <BottomRightCorner size={EDGE_THRESHOLD - 2} />
-                  {/* @ts-ignore */}
-                  <Warning style={{...warningProps[i]}} />
-                  <Content color={order.current[i].backgroundColor}>
-
-                  </Content>
-
-                </Wrapper>
-              </animated.div>
-            );
-          },
-          )
-
-        }
+        {props.map(({x, y, backgroundColor, ...rest}, i) => {
+          return (
+            <animated.div
+              {...bind(i)}
+              key={i}
+              style={{
+                ...rest,
+                position: 'absolute',
+                transform: interpolate([x, y], (x, y) => `translate3d(${x}px,${y}px,0)`),
+              } as any}
+            >
+              <Wrapper>
+                <TopEdge size={EDGE_THRESHOLD - 2} />
+                <BottomEdge size={EDGE_THRESHOLD - 2} />
+                <LeftEdge size={EDGE_THRESHOLD - 2} />
+                <RightEdge size={EDGE_THRESHOLD - 2} />
+                <TopLeftCorner size={EDGE_THRESHOLD - 2} />
+                <TopRightCorner size={EDGE_THRESHOLD - 2} />
+                <BottomLeftCorner size={EDGE_THRESHOLD - 2} />
+                <BottomRightCorner size={EDGE_THRESHOLD - 2} />
+                <Warning style={{...warningProps[i]} as any} />
+                <Content color={order.current[i].backgroundColor}></Content>
+              </Wrapper>
+            </animated.div>
+          );
+        })}
       </div>
     </OuterContainer>
   );

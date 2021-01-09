@@ -28,5 +28,8 @@ module.exports = {
     'max-len': ['error', {'code': 160}],
     'react/prop-types': 'off',
     'react/display-name': 'off',
+    'object-curly-spacing': ['error', 'never'],
+    // 'template-curly-spacing': ['error', 'never'],
+    // 'space-in-brackets': ['error', 'never'],
   },
 };
