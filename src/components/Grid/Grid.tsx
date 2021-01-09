@@ -233,12 +233,14 @@ export type GridProps = {
   maxY?: number;
   /** show debug grid */
   debugGrid?: boolean;
+  /** Will be called everytime state changes */
+  onInputChange?: (newInput: Input[]) => void;
 };
 
 /**
  * Currently doesn't support mobile sizes
  */
-export const Grid: React.FC<GridProps> = withResizeDetector<GridProps & {width: number}>(({width, maxX, maxY, debugGrid = false}) => {
+export const Grid: React.FC<GridProps> = withResizeDetector<GridProps & {width: number}>(({width, maxX, maxY, debugGrid = false, onInputChange}) => {
   const order = useRef<Input[]>(input);
   const constraints = useMemo<Constraints>(
       () => ({
@@ -290,7 +292,11 @@ export const Grid: React.FC<GridProps> = withResizeDetector<GridProps & {width: 
       if (isColliding) {
         actual = order.current.map((c) => calculateActual(c, size, constraints.margin)); // restore original
       } else {
-        order.current = newMap;
+        const oldMap = order.current;
+        if (JSON.stringify(oldMap) !== JSON.stringify(newMap)) {
+          order.current = newMap;
+          onInputChange?.(order.current);
+        }
       }
       warningSet(warningFn({}));
     } else {
