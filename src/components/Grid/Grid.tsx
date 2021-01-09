@@ -1,13 +1,12 @@
-import React, { useState, useMemo, useRef, useEffect } from "react";
-import PropTypes from "prop-types";
-import { useSprings, animated, interpolate } from "react-spring";
-import { useDrag } from "react-use-gesture";
+import React, {useMemo, useRef, useEffect} from 'react';
+import {useSprings, animated, interpolate} from 'react-spring';
+import {useDrag} from 'react-use-gesture';
 import styled from 'styled-components';
 import _ from 'lodash';
-import { calculateResize, checkCollisions, createCollisionBoard } from "./calculations";
-import { getRandomColor, isOnEdge } from './utils';
-import { withResizeDetector } from 'react-resize-detector';
-import { Constraints, Input } from "./types";
+import {calculateResize, checkCollisions, createCollisionBoard} from './calculations';
+import {getRandomColor, isOnEdge} from './utils';
+import {withResizeDetector} from 'react-resize-detector';
+import {Constraints, Input} from './types';
 
 
 const SIZE = 100;
@@ -23,18 +22,18 @@ const OuterContainer = styled.div`
 
 
 const Cell = styled.div<{ size: number, margin: number, shown: boolean }>`
-  width: ${({ size = SIZE, margin = MARGIN }) => size + margin * 2}px;
-  height: ${({ size = SIZE, margin = MARGIN }) => size + margin * 2}px;
+  width: ${({size = SIZE, margin = MARGIN}) => size + margin * 2}px;
+  height: ${({size = SIZE, margin = MARGIN}) => size + margin * 2}px;
   /* background-color: #d1d1d1; */
   box-sizing: border-box;
-  border: ${({shown}) => shown && "1px solid black"};
+  border: ${({shown}) => shown && '1px solid black'};
   opacity: 0.4;
 `;
 
 
 const Container = styled.div<{ isCol: boolean }>`
   display: flex;
-  flex-direction: ${props => props.isCol ? 'column' : 'row'};
+  flex-direction: ${(props) => props.isCol ? 'column' : 'row'};
 `;
 
 const Edge = styled.div`
@@ -47,7 +46,7 @@ const Edge = styled.div`
 const TopEdge = styled(Edge) <{ size: number }>`
   top: 0;
   left: 0;
-  height: ${({ size }) => size}px;
+  height: ${({size}) => size}px;
   width: 100%;
   cursor: ns-resize;
 `;
@@ -55,7 +54,7 @@ const TopEdge = styled(Edge) <{ size: number }>`
 const BottomEdge = styled(Edge) <{ size: number }>`
   left: 0;
   bottom: 0;
-  height: ${({ size }) => size}px;
+  height: ${({size}) => size}px;
   width: 100%;
   cursor: ns-resize;
 `;
@@ -63,7 +62,7 @@ const BottomEdge = styled(Edge) <{ size: number }>`
 const LeftEdge = styled(Edge) <{ size: number }>`
   top: 0;
   left: 0;
-  width: ${({ size }) => size}px;
+  width: ${({size}) => size}px;
   height: 100%;
   cursor: ew-resize;
 `;
@@ -71,15 +70,15 @@ const LeftEdge = styled(Edge) <{ size: number }>`
 const RightEdge = styled(Edge) <{ size: number }>`
   top: 0;
   right: 0;
-  width: ${({ size }) => size}px;
+  width: ${({size}) => size}px;
   height: 100%;
   cursor: ew-resize;
 `;
 
 
 const Corner = styled(Edge) <{ size: number }>`
-  width: ${({ size }) => size}px;
-  height: ${({ size }) => size}px;
+  width: ${({size}) => size}px;
+  height: ${({size}) => size}px;
   border-radius: 10px;
 `;
 
@@ -106,25 +105,23 @@ const BottomRightCorner = styled(Corner)`
 
 
 type RepeatProps = {
-  Component: React.ComponentType
+  children: React.ReactNode
   isCol?: boolean
   count?: number
-  props?: any
 }
 
-const Repeat = ({ Component, isCol = false, count = 12, props = {} }: RepeatProps) => () => {
-  return (
-    <Container isCol={isCol}>
-      {
-        [...Array(count).keys()].map((_, index) => <Component key={index} {...props} />)
-      }
-    </Container>
-  )
-}
+const Repeat: React.FC<RepeatProps> = ({isCol = false, count = 12, children}) => (
+  <Container isCol={isCol}>
+    {
+      [...Array(count).keys()].map((_, index) => <div key={index}>{children}</div>)
+    }
+  </Container>
+);
+Repeat.displayName = 'Repeat';
 
 const Content = styled.div<{ color?: string }>`
   position: relative;
-  background-color: ${({ color = '#123' }) => color};
+  background-color: ${({color = '#123'}) => color};
   width: 100%;
   height: 100%;
   z-index: 0;
@@ -162,15 +159,13 @@ const Wrapper = styled.div`
 `;
 
 
-
-
 const input: Input[] = [
-  { x: 1, y: 1, width: 1, height: 1, backgroundColor: getRandomColor() },
-  { x: 1, y: 2, width: 1, height: 1, backgroundColor: getRandomColor() },
-  { x: 1, y: 3, width: 2, height: 1, backgroundColor: getRandomColor() },
-  { x: 6, y: 3, width: 1, height: 1, backgroundColor: getRandomColor() },
-  { x: 6, y: 1, width: 1, height: 1, backgroundColor: getRandomColor() },
-]
+  {x: 1, y: 1, width: 1, height: 1, backgroundColor: getRandomColor()},
+  {x: 1, y: 2, width: 1, height: 1, backgroundColor: getRandomColor()},
+  {x: 1, y: 3, width: 2, height: 1, backgroundColor: getRandomColor()},
+  {x: 6, y: 3, width: 1, height: 1, backgroundColor: getRandomColor()},
+  {x: 6, y: 1, width: 1, height: 1, backgroundColor: getRandomColor()},
+];
 
 
 const calculateActual = (curr: Input, size = SIZE, margin = MARGIN): Input => ({
@@ -180,7 +175,6 @@ const calculateActual = (curr: Input, size = SIZE, margin = MARGIN): Input => ({
   x: curr.x * (size + margin * 2) + margin,
   y: curr.y * (size + margin * 2) + margin,
 });
-
 
 
 type fnProps = {
@@ -197,7 +191,7 @@ type SpringStyleProps = Input & {
 }
 type SpringFunction = (index: number) => SpringStyleProps
 
-const fn = ({ vals, down, currentIndex, immediate = false }: fnProps) => (prevFn?: SpringFunction): SpringFunction => (index: number) => {
+const fn = ({vals, down, currentIndex, immediate = false}: fnProps) => (prevFn?: SpringFunction): SpringFunction => (index: number) => {
   return {
     ...vals[index],
     width: vals[index].width,
@@ -205,10 +199,10 @@ const fn = ({ vals, down, currentIndex, immediate = false }: fnProps) => (prevFn
     x: vals[index].x,
     y: vals[index].y,
     opacity: down && (index === currentIndex) ? 0.8 : 1,
-    immediate: key => immediate || ['zIndex'].includes(key),
+    immediate: (key) => immediate || ['zIndex'].includes(key),
     zIndex: down ? (index === currentIndex ? 1 : 0) : prevFn?.(index)?.zIndex ?? 0,
-  }
-}
+  };
+};
 
 type WarningFnProps = {
   currentIndex?: number
@@ -219,11 +213,11 @@ type WarningStyleProps = {
   opacity: number
 }
 
-const warningFn = ({ currentIndex, isWarning }: WarningFnProps) => (index: number): WarningStyleProps => {
+const warningFn = ({currentIndex, isWarning}: WarningFnProps) => (index: number): WarningStyleProps => {
   return {
-    opacity: currentIndex === index && isWarning ? 0.3 : 0
-  }
-}
+    opacity: currentIndex === index && isWarning ? 0.3 : 0,
+  };
+};
 
 type BackGridType = {
   size: number
@@ -233,10 +227,13 @@ type BackGridType = {
   shown: boolean
 }
 
-const BackGrid: React.FC<BackGridType> = ({ size, margin, xCount, yCount, shown }) => {
-  const Comp = Repeat({ Component: Repeat({ Component: Cell, count: xCount, props: { size, margin, shown } }), isCol: true, count: yCount });
-  return <Comp />
-}
+const BackGrid: React.FC<BackGridType> = ({size, margin, xCount, yCount, shown}) => (
+  <Repeat count={yCount} isCol={true}>
+    <Repeat count={xCount}>
+      <Cell size={size} margin={margin} shown={shown} />
+    </Repeat>
+  </Repeat>
+);
 
 
 export type GridProps = {
@@ -251,21 +248,21 @@ export type GridProps = {
 /**
  * Currently doesn't support mobile sizes
  */
-export const Grid: React.FC<GridProps> = withResizeDetector<GridProps & { width: number }>(({ width, maxX, maxY, debugGrid = false }) => {
+export const Grid: React.FC<GridProps> = withResizeDetector<GridProps & { width: number }>(({width, maxX, maxY, debugGrid = false}) => {
   const order = useRef<Input[]>(input);
   const constraints = useMemo<Constraints>(() => ({
     x: maxX ?? 1,
     y: maxY ?? 1,
     margin: MARGIN,
-  }), [maxX, maxY])
+  }), [maxX, maxY]);
   const size = useMemo(() => Math.floor(((width ?? 0) - (constraints.margin * 2 * constraints.x)) / constraints.x) || SIZE, [width, constraints]);
   const [warningProps, warningSet] = useSprings<WarningStyleProps>(input.length, warningFn({}));
-  const [props, set] = useSprings<SpringStyleProps>(input.length, fn({ vals: order.current.map(c => calculateActual(c, size, constraints.margin)) })());
+  const [props, set] = useSprings<SpringStyleProps>(input.length, fn({vals: order.current.map((c) => calculateActual(c, size, constraints.margin))})());
   useEffect(() => {
-    set(fn({ vals: order.current.map(c => calculateActual(c, size, constraints.margin)), immediate: true })())
+    set(fn({vals: order.current.map((c) => calculateActual(c, size, constraints.margin)), immediate: true})());
   }, [size]);
 
-  const bind = useDrag(({ event, xy, args: [i], first, memo, down, movement: [x, y] }) => {
+  const bind = useDrag(({event, xy, args: [i], first, memo, down, movement: [x, y]}) => {
     const currDim = order.current[i];
 
     const movedCellX = Math.round(x / (size + 2 * constraints.margin));
@@ -290,40 +287,40 @@ export const Grid: React.FC<GridProps> = withResizeDetector<GridProps & { width:
     newMap[i] = {
       ...newMap[i],
       ...wantedCell,
-    }
+    };
     const isColliding = checkCollisions(newMap[i], board);
 
-    let actual = newMap.map(c => calculateActual(c, size, constraints.margin));
+    let actual = newMap.map((c) => calculateActual(c, size, constraints.margin));
 
     if (!down) {
       // if mouse released save the state.
       if (isColliding) {
-        actual = order.current.map(c => calculateActual(c, size, constraints.margin)); // restore original
+        actual = order.current.map((c) => calculateActual(c, size, constraints.margin)); // restore original
       } else {
         order.current = newMap;
       }
       warningSet(warningFn({}));
     } else {
-      warningSet(warningFn({ currentIndex: i, isWarning: isColliding }));
+      warningSet(warningFn({currentIndex: i, isWarning: isColliding}));
     }
-    const newFn = fn({ vals: actual, down, currentIndex: i })(memo?.prevFn);
-    set(newFn)
+    const newFn = fn({vals: actual, down, currentIndex: i})(memo?.prevFn);
+    set(newFn);
     return {
       onEdge,
       board,
       prevFn: newFn,
-    }
-  })
+    };
+  });
 
 
   return (
     <OuterContainer>
-      <div style={{ position: 'absolute' }}>
+      <div style={{position: 'absolute'}}>
         <BackGrid shown={debugGrid} size={size} margin={constraints.margin} xCount={constraints.x} yCount={constraints.y} />
       </div>
-      <div style={{ position: 'relative', top: 0, left: 0 }}>
+      <div style={{position: 'relative', top: 0, left: 0}}>
         {
-          props.map(({ x, y, backgroundColor, ...rest }, i) => {
+          props.map(({x, y, backgroundColor, ...rest}, i) => {
             return (
               <animated.div
                 {...bind(i)}
@@ -334,7 +331,8 @@ export const Grid: React.FC<GridProps> = withResizeDetector<GridProps & { width:
                   position: 'absolute',
                   transform: interpolate([x, y], (x, y) => `translate3d(${x}px,${y}px,0)`),
                 }}
-                children={<Wrapper>
+              >
+                <Wrapper>
                   <TopEdge size={EDGE_THRESHOLD - 2} />
                   <BottomEdge size={EDGE_THRESHOLD - 2} />
                   <LeftEdge size={EDGE_THRESHOLD - 2} />
@@ -344,21 +342,21 @@ export const Grid: React.FC<GridProps> = withResizeDetector<GridProps & { width:
                   <BottomLeftCorner size={EDGE_THRESHOLD - 2} />
                   <BottomRightCorner size={EDGE_THRESHOLD - 2} />
                   {/* @ts-ignore */}
-                  <Warning style={{ ...warningProps[i] }} />
+                  <Warning style={{...warningProps[i]}} />
                   <Content color={order.current[i].backgroundColor}>
 
                   </Content>
 
-                </Wrapper>}
-              />
-            )
-          }
+                </Wrapper>
+              </animated.div>
+            );
+          },
           )
 
         }
       </div>
     </OuterContainer>
-  )
+  );
 }) as React.FC<GridProps>;
 
 Grid.displayName = 'Grid';
@@ -366,6 +364,6 @@ Grid.defaultProps = {
   maxX: 12,
   maxY: 6,
   debugGrid: false,
-}
+};
 
 export default Grid;

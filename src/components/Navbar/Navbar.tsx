@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { RowContainer } from '../common';
+import {RowContainer} from '../common';
 
 
 const StyledNavBar = styled(RowContainer)`
@@ -9,8 +9,9 @@ const StyledNavBar = styled(RowContainer)`
 
 
 export const NavBar = () => {
+  return <StyledNavBar>
 
-  return null;
-}
+  </StyledNavBar>;
+};
 
 export default NavBar;
